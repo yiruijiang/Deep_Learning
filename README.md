@@ -1,2 +1,1 @@
-# Deep_Learning
-Deep_Learning_Learning_Notes
+My learning note

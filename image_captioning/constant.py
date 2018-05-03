@@ -1,2 +1,2 @@
-class Constant:
-    IMG_SIZE = 299
+
+IMG_SIZE = 299

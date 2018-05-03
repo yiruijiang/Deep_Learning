@@ -22,10 +22,8 @@ L = keras.layers
 K = keras.backend
 
 # preparation.load_encoder()
-# train_img_embeds, train_img_fns, val_img_embeds, val_img_fns = preparation.initialize()
+train_img_embeds, train_img_fns, val_img_embeds, val_img_fns = preparation.initialize()
 
-# print(train_img_embeds.shape)
-# print(type(train_img_embeds))
-
-# check prepared samples of images
-print(list(filter(lambda x: x.endswith("_sample.zip"), os.listdir("."))))
+print(type(train_img_fns))
+c = np.random.choice(len(train_img_fns), 10)
+print(np.array(train_img_fns)[c])

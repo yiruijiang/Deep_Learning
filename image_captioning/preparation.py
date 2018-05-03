@@ -1,23 +1,24 @@
 from tensorflow.contrib import keras
-K = keras.backend
 import utils
 import constant
 import numpy as np
 import zipfile
+import re
+
+K = keras.backend
+
+PAD = "#PAD#"
+UNK = "#UNK#"
+START = "#START#"
+END = "#END#"
 
 # we take the last hidden layer of IncetionV3 as an image embedding
 def get_cnn_encoder():
-
     K.set_learning_phase(False) # Sets the learning phase to a fixed value
-
     model = keras.applications.InceptionV3(include_top = False)
-
     preprocess_for_model = keras.applications.inception_v3.preprocess_input # a function
-
     model = keras.models.Model(model.inputs, keras.layers.GlobalAveragePooling2D()(model.output)) # add another layer on top of the current model
-
     return model, preprocess_for_model
-
 
 def load_encoder():
     # load pre-trained model
@@ -58,4 +59,12 @@ def initialize():
     val_img_embeds = utils.read_pickle("val_img_embeds.pickle")
     val_img_fns = utils.read_pickle("val_img_fns.pickle")
     return train_img_embeds, train_img_fns, val_img_embeds, val_img_fns
+
+def split_sentence(sentence):
+    """
+    split sentence into words
+    """
+    return list(filter(lambda x: len(x) > 0, re.split("\W+", sentence.lower())))
+
+
 

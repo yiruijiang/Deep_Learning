@@ -2,7 +2,7 @@ import os
 import queue
 import threading
 import zipfile
-import tqdm
+from tqdm import tqdm
 import cv2
 import numpy as np
 import pickle
@@ -57,7 +57,7 @@ def apply_model(zip_fn, model, preprocess_for_model, extensions = (".jpg",), inp
     def reading_thread(zip_fn):
 
         zf = zipfile.ZipFile(zip_fn)
-        for fn in tqdm(zf.namelist()):
+        for fn in tqdm(zf.namelist()): # every file in the zip file
             if kill_read_thread.is_set():
                 break
             if os.path.splitext(fn)[-1] in extensions: #get extension from path
@@ -79,10 +79,10 @@ def apply_model(zip_fn, model, preprocess_for_model, extensions = (".jpg",), inp
     t.daemon = True # similar to thread.detach in c++
     t.start()
 
-    img_fns = []
-    img_embeddings = []
+    img_fns = [] # image file names
+    img_embeddings = [] # image embedded features
 
-    batch_imgs = []
+    batch_imgs = [] # batch images
 
     def process_batch(batch_imgs):
         batch_imgs = np.stack(batch_imgs, axis = 0) # convert list to array of shape [batch_size, image_shape]
@@ -108,13 +108,22 @@ def apply_model(zip_fn, model, preprocess_for_model, extensions = (".jpg",), inp
         if len(batch_imgs):
             process_batch(batch_imgs)
     finally:
-        kill_read_thread.set()
-        t.join()
+        kill_read_thread.set() # now it is time to stop the 
+        t.join() # block the reading image thread till it is finished
     
-    q.join()
+    q.join() #blocks untill all items in the queue have been gotten and processed
 
-    img_embeddings = np.vstack(img_embeddings)
+    img_embeddings = np.vstack(img_embeddings)# convert from list to array of shape [batch_size, img_embed_size]
+
     return img_embeddings, img_fns
+
+def save_pickle(obj, fn):
+    with open(fn, "wb") as f:
+        pickle.dump(obj, f, protocol = pickle.HIGHEST_PROTOCOL)
+
+def read_pickle(fn):
+    with open(fn, "rb") as f:
+        return pickle.load(f)
 
 
 
